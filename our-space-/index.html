@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Our Space · AC 💙 & SW 💚</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f7f6;
+      margin: 0;
+      padding: 24px;
+    }
+    .card {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+    }
+    textarea, input {
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 14px;
+    }
+    .entry {
+      border-top: 1px solid #ddd;
+      margin-top: 12px;
+      padding-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Our Space 💙💚</h1>
+
+    <div id="login">
+      <input id="password" type="password" placeholder="Shared password" />
+      <button onclick="login()">Sign in</button>
+    </div>
+
+    <div id="app" style="display:none">
+      <button onclick="logout()">Sign out</button>
+
+      <h3>New entry</h3>
+      <input id="author" placeholder="AC or SW" />
+      <textarea id="content" placeholder="Write from the heart…"></textarea>
+      <button onclick="save()">Save</button>
+
+      <h3>Saved entries</h3>
+      <div id="entries"></div>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+      const res = await fetch("/.netlify/functions/login", {
+        method: "POST",
+        body: JSON.stringify({ password: password.value })
+      });
+
+      if (res.ok) {
+        location.reload();
+      } else {
+        alert("Wrong password");
+      }
+    }
+
+    async function logout() {
+      await fetch("/.netlify/functions/logout");
+      location.reload();
+    }
+
+    async function save() {
+      await fetch("/.netlify/functions/entries", {
+        method: "POST",
+        body: JSON.stringify({
+          author: author.value,
+          payload: { body: content.value }
+        })
+      });
+      content.value = "";
+      load();
+    }
+
+    async function load() {
+      const res = await fetch("/.netlify/functions/entries");
+      if (!res.ok) return;
+
+      document.getElementById("login").style.display = "none";
+      document.getElementById("app").style.display = "block";
+
+      const data = await res.json();
+      entries.innerHTML = data
+        .map(e => `<div class="entry"><b>${e.author}</b><br>${e.payload.body}</div>`)
+        .join("");
+    }
+
+    load();
+  </script>
+</body>
+</html>
