@@ -1,17 +1,18 @@
-import { serialize } from "cookie";
+import cookie from "cookie";
 
 export async function handler() {
   return {
     statusCode: 200,
     headers: {
-      "Set-Cookie": serialize("ourspace_auth", "", {
+      "Content-Type": "application/json",
+      "Set-Cookie": cookie.serialize("os_refresh", "", {
         httpOnly: true,
         secure: true,
-        sameSite: "Strict",
+        sameSite: "Lax",
         path: "/",
         maxAge: 0
       })
     },
-    body: "Logged out"
+    body: JSON.stringify({ ok: true })
   };
 }
