@@ -1,6 +1,7 @@
 [build]
-  functions = "netlify/functions"
+  base = "our-space-"
   publish = "."
+  functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
