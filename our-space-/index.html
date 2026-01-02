@@ -1,451 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Our Space · AC & SW</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="data:," />
-
-  <style>
-    :root{
-      --bg1:#e6f5ec; --bg2:#f9fafb; --bg3:#e6effa;
-      --ink:#111827; --muted:#6b7280; --line:#e5e7eb;
-      --green:#16a34a; --blue:#2563eb;
-      --shadow: 0 14px 40px rgba(17, 24, 39, 0.08);
-      --radius: 18px;
-    }
-    *{ box-sizing:border-box; }
-    body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color:var(--ink); background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3)); min-height:100vh; }
-    .wrap{ max-width: 980px; margin: 0 auto; padding: 28px 18px 60px; }
-    .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom: 18px; }
-    .title h1{ font-size: clamp(28px, 4vw, 40px); margin:0 0 6px 0; letter-spacing:-0.02em; font-weight: 650; }
-    .title .sub{ margin:0; color:var(--muted); line-height:1.4; font-size: 14px; }
-    .pill{ display:inline-flex; align-items:center; gap:10px; padding:10px 12px;
-      background: rgba(255,255,255,0.65); border: 1px solid rgba(229,231,235,0.9);
-      border-radius: 999px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); backdrop-filter: blur(6px); white-space:nowrap; }
-    .dot{ width:10px; height:10px; border-radius:999px; background: linear-gradient(90deg, var(--green), var(--blue)); box-shadow: 0 0 0 4px rgba(22,163,74,0.10); }
-    .card{ background: rgba(255,255,255,0.85); border: 1px solid rgba(229,231,235,0.85);
-      border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(8px); }
-    .tabs{ display:flex; flex-wrap:wrap; gap:8px; padding: 12px; border-bottom: 1px solid rgba(229,231,235,0.8); }
-    .tab{ border: 1px solid rgba(229,231,235,0.9); background: rgba(255,255,255,0.75); color: var(--ink);
-      padding: 10px 12px; border-radius: 999px; cursor:pointer; font-weight:800; font-size: 13px; }
-    .tab.active{ background: rgba(219,234,254,0.8); border-color: rgba(147,197,253,0.9); }
-    .page{ display:none; padding: 18px; }
-    .page.active{ display:block; }
-    .page h2{ margin: 0 0 6px 0; font-size: 20px; }
-    .page p.lead{ margin: 0 0 16px 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
-    label.small{ display:block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; font-weight: 900; }
-    input[type="text"], input[type="email"], input[type="password"], textarea, select{
-      width:100%; border-radius: 14px; border: 1px solid rgba(209,213,219,0.95); background: rgba(255,255,255,0.9);
-      padding: 12px 12px; font-size: 14px; outline:none;
-    }
-    textarea{ min-height: 130px; resize: vertical; }
-    .row{ display:flex; gap:10px; flex-wrap:wrap; }
-    .row > *{ flex:1; min-width: 220px; }
-    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px; }
-    .btn{ border:none; border-radius: 999px; padding: 10px 14px; cursor:pointer; font-weight:900; font-size: 13px; }
-    .btn.primary{ background: linear-gradient(90deg, rgba(22,163,74,0.95), rgba(37,99,235,0.95)); color: white; }
-    .btn.ghost{ background: rgba(255,255,255,0.7); border: 1px solid rgba(229,231,235,0.95); color: var(--ink); }
-    .btn.danger{ background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25); color: #b91c1c; }
-    .divider{ height:1px; background: rgba(229,231,235,0.75); margin: 16px 0; }
-    footer{ text-align:center; color: var(--muted); font-size: 12px; margin-top: 18px; }
-    .entry{ background: rgba(255,255,255,0.72); border:1px solid rgba(229,231,235,0.85); border-radius: 16px; margin-bottom: 10px; }
-    .entry .inner{ padding: 14px; }
-    .meta{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
-    .when{ color: var(--muted); font-size: 12px; }
-    .etitle{ margin-top:6px; font-weight:900; }
-    .ebody{ margin-top:10px; font-size:14px; line-height:1.6; word-wrap:break-word; }
-    .empty{ margin:0; color: var(--muted); font-size: 13px; }
-
-    .overlay{ position: fixed; inset: 0; display:none; align-items:center; justify-content:center; padding: 18px;
-      background: rgba(17,24,39,0.25); backdrop-filter: blur(8px); z-index: 9999; }
-    .overlay.active{ display:flex; }
-    .panel{ width: min(520px, 100%); border-radius: 22px; box-shadow: 0 24px 70px rgba(0,0,0,0.18);
-      border: 1px solid rgba(229,231,235,0.85); background: rgba(255,255,255,0.92); padding: 18px; }
-    .panel h2{ margin:0 0 6px 0; }
-    .panel p{ margin:0 0 12px 0; color: var(--muted); line-height:1.45; font-size: 13px; }
-    .status{ font-size: 12px; color: var(--muted); margin-top: 10px; white-space: pre-wrap; }
-  </style>
-</head>
-
-<body>
-
-  <div id="loginOverlay" class="overlay">
-    <div class="panel">
-      <h2>Welcome back 💛</h2>
-      <p>Sign in with your <b>shared</b> email + password so both of you see the same entries.</p>
-
-      <label class="small">Shared email</label>
-      <input id="authEmail" type="email" placeholder="youboth@example.com" autocomplete="email" />
-
-      <label class="small">Shared password</label>
-      <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" />
-
-      <div class="actions">
-        <button class="btn primary" id="btnSignIn">Sign in</button>
-      </div>
-
-      <div id="authStatus" class="status"></div>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <div class="top">
-      <div class="title">
-        <h1>Our Space</h1>
-        <p class="sub">Built with love · AC 💙 & SW 💚</p>
-        <p class="sub">Romantic, honest, and healing — a shared place to grow together.</p>
-      </div>
-
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-        <div class="pill">
-          <span class="dot"></span>
-          <span style="font-weight:900;color:var(--green);">SW</span><span>💚</span>
-          <span style="color:var(--muted);">+</span>
-          <span style="font-weight:900;color:var(--blue);">AC</span><span>💙</span>
-        </div>
-
-        <div class="pill">
-          <span style="font-weight:900;">Cloud</span>
-          <span style="color:var(--muted);">·</span>
-          <span id="cloudState" style="color:var(--muted);">checking…</span>
-          <button class="btn ghost" style="padding:8px 10px;" id="btnSignOut">Sign out</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="tabs">
-        <button class="tab active" data-tab="journal">Journal</button>
-        <button class="tab" data-tab="appreciations">Appreciations</button>
-        <button class="tab" data-tab="checkin">Check-In</button>
-      </div>
-
-      <section id="journal" class="page active">
-        <h2>Write to Each Other</h2>
-        <p class="lead">Save entries as separate moments — and start fresh each time.</p>
-
-        <div class="row">
-          <div>
-            <label class="small">Who is writing?</label>
-            <select id="journalAuthor">
-              <option value="AC">AC 💙</option>
-              <option value="SW">SW 💚</option>
-            </select>
-          </div>
-          <div>
-            <label class="small">Title (optional)</label>
-            <input id="journalTitle" type="text" placeholder="A small headline for today…" />
-          </div>
-        </div>
-
-        <label class="small">Entry</label>
-        <textarea id="journalBody" placeholder="Write from the heart…"></textarea>
-
-        <div class="actions">
-          <button class="btn primary" id="btnSaveJournal">Save Entry</button>
-          <button class="btn danger" id="btnClearJournal">Clear draft</button>
-        </div>
-
-        <div class="divider"></div>
-        <div id="journalList"></div>
-      </section>
-
-      <section id="appreciations" class="page">
-        <h2>Things I Appreciate About You</h2>
-        <p class="lead">Quick notes you can revisit anytime.</p>
-
-        <label class="small">Who is writing?</label>
-        <select id="appAuthor">
-          <option value="AC">AC 💙</option>
-          <option value="SW">SW 💚</option>
-        </select>
-
-        <label class="small">Appreciation</label>
-        <textarea id="appBody" placeholder="I appreciate you for…"></textarea>
-
-        <div class="actions">
-          <button class="btn primary" id="btnSaveApp">Save Appreciation</button>
-          <button class="btn danger" id="btnClearApp">Clear draft</button>
-        </div>
-
-        <div class="divider"></div>
-        <div id="appreciationsList"></div>
-      </section>
-
-      <section id="checkin" class="page">
-        <h2>Weekly Check-In</h2>
-        <p class="lead">A weekly snapshot to stay connected.</p>
-
-        <label class="small">How have you been feeling?</label>
-        <textarea id="checkinFeel"></textarea>
-
-        <label class="small">One thing I need this week…</label>
-        <textarea id="checkinNeed"></textarea>
-
-        <div class="actions">
-          <button class="btn primary" id="btnSaveCheckin">Save Check-In</button>
-          <button class="btn danger" id="btnClearCheckin">Clear draft</button>
-        </div>
-
-        <div class="divider"></div>
-        <div id="checkinList"></div>
-      </section>
-    </div>
-
-    <footer>For SW 💚 & AC 💙 — built with intention · cloud-safe</footer>
-  </div>
-
 <script>
-  // ---------- helpers ----------
   const $ = (id) => document.getElementById(id);
-  const esc = (s) => (s ?? "").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  const nl2br = (s) => esc(s).replace(/\n/g,"<br>");
-  const niceTime = (iso) => new Date(iso).toLocaleString();
+  const API = "/.netlify/functions";
 
-  function setCloud(text){ $("cloudState").textContent = text; }
-  function showLogin(show){ $("loginOverlay").classList.toggle("active", !!show); }
-  function setAuthStatus(t){ $("authStatus").textContent = t || ""; }
+  function esc(s){ return (s ?? "").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function nl2br(s){ return esc(s).replace(/\n/g,"<br>"); }
+  function niceTime(iso){ return new Date(iso).toLocaleString(); }
 
-  const PREFIX = "our-space:v3:";
-  function saveDraft(key, value){ try{ localStorage.setItem(PREFIX + key, value); }catch(e){} }
-  function loadDraft(key){ try{ return localStorage.getItem(PREFIX + key) || ""; }catch(e){ return ""; } }
-
-  function bindDraft(id, key){
-    const el = $(id);
-    if(!el) return;
-    el.addEventListener("input", () => saveDraft(key, el.value));
-  }
-
-  function hydrateDrafts(){
-    $("journalTitle").value = loadDraft("journalTitle");
-    $("journalBody").value  = loadDraft("journalBody");
-    $("journalAuthor").value = loadDraft("journalAuthor") || $("journalAuthor").value;
-
-    $("appBody").value = loadDraft("appBody");
-    $("appAuthor").value = loadDraft("appAuthor") || $("appAuthor").value;
-
-    $("checkinFeel").value = loadDraft("checkinFeel");
-    $("checkinNeed").value = loadDraft("checkinNeed");
-  }
-
-  function clearDraft(keys){
-    if(!confirm("Clear the current draft? (Saved entries stay.)")) return;
-    for(const k of keys){
-      const el = $(k);
-      if(el){ el.value = ""; saveDraft(k, ""); }
-    }
-  }
-
-  // ---------- tabs ----------
-  document.querySelectorAll(".tab").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
-    });
-  });
-
-  // ---------- API ----------
-  async function api(path, opts = {}){
-    const res = await fetch(`/.netlify/functions/${path}`, {
-      credentials: "include",
-      headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
-      ...opts
-    });
-    const text = await res.text();
-    let json = null;
-    try{ json = JSON.parse(text); }catch(e){}
-    return { ok: res.ok, status: res.status, json, text };
-  }
-
-  async function ensureSignedIn(){
-    // Quick auth check: try fetching journal
-    const r = await api(`entries?section=journal`, { method: "GET" });
-    if(r.ok) return true;
-    if(r.status === 401){ showLogin(true); setCloud("signed out"); }
-    return false;
-  }
-
-  function card(row, section){
-    const payload = row.payload || {};
+  function renderCard(row) {
     const titleHtml = row.title ? `<div class="etitle">${esc(row.title)}</div>` : "";
-    const body = payload.body || payload.text || "";
     return `
       <div class="entry"><div class="inner">
         <div class="meta">
-          <div>
-            <div><b>${esc(row.author || "")}</b> <span class="when">${esc(niceTime(row.created_at))}</span></div>
-            ${titleHtml}
-          </div>
-          <button class="btn danger" style="padding:8px 10px;" data-del="${row.id}" data-sec="${section}">Delete</button>
+          <div class="badges"><b>${esc(row.author || "")}</b> <span class="when">${esc(niceTime(row.created_at))}</span></div>
         </div>
-        <div class="ebody">${nl2br(body)}</div>
+        ${titleHtml}
+        <div class="ebody">${nl2br(row.body || "")}</div>
       </div></div>
     `;
   }
 
-  async function render(section){
-    const listId = section + "List";
-    const list = $(listId);
+  async function loadEntries(section) {
+    const list = $(section + "List");
+    if (!list) return;
     list.innerHTML = `<p class="empty">Loading…</p>`;
 
-    const r = await api(`entries?section=${encodeURIComponent(section)}`, { method:"GET" });
-    if(!r.ok){
-      if(r.status === 401){
-        list.innerHTML = `<p class="empty">Sign in to load entries.</p>`;
-        return;
-      }
-      list.innerHTML = `<p class="empty">Couldn’t load entries.</p>`;
+    const res = await fetch(`${API}/entries?section=${encodeURIComponent(section)}`);
+    const data = await res.json();
+
+    if (!data.ok) {
+      list.innerHTML = `<p class="empty">Couldn’t load: ${esc(data.error || "unknown error")}</p>`;
       return;
     }
 
-    const rows = r.json?.data || [];
-    if(!rows.length){
+    const rows = data.entries || [];
+    if (!rows.length) {
       list.innerHTML = `<p class="empty">No saved entries yet.</p>`;
       return;
     }
+    list.innerHTML = rows.map(renderCard).join("");
+  }
 
-    list.innerHTML = rows.map(row => card(row, section)).join("");
+  async function saveEntry(section) {
+    const author = $(section + "Author")?.value || "AC";
+    const title  = ($(section + "Title")?.value || "").trim();
+    const body   = ($(section + "Body")?.value || "").trim();
 
-    // delete buttons
-    list.querySelectorAll("[data-del]").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        if(!confirm("Delete this entry?")) return;
-        const id = btn.getAttribute("data-del");
-        const sec = btn.getAttribute("data-sec");
-        const del = await api("entries", { method:"DELETE", body: JSON.stringify({ id }) });
-        if(!del.ok) alert(del.json?.error || "Delete failed");
-        await render(sec);
-      });
+    if (!body) { alert("Write something first 💛"); return; }
+
+    const res = await fetch(`${API}/entries`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ section, author, title, body })
     });
-  }
 
-  async function renderAll(){
-    await render("journal");
-    await render("appreciations");
-    await render("checkin");
-  }
-
-  // ---------- auth buttons ----------
-  $("btnSignIn").addEventListener("click", async () => {
-    setAuthStatus("");
-    const email = $("authEmail").value.trim();
-    const password = $("authPassword").value;
-    if(!email || !password){ setAuthStatus("Please enter email + password."); return; }
-
-    setCloud("signing in…");
-    const r = await api("login", { method:"POST", body: JSON.stringify({ email, password }) });
-    if(!r.ok){
-      setCloud("signed out");
-      setAuthStatus(r.json?.error || "Sign in failed");
+    const data = await res.json();
+    if (!data.ok) {
+      alert("Save failed: " + (data.error || "unknown error"));
       return;
     }
 
-    setCloud("signed in");
-    showLogin(false);
-    await renderAll();
+    if ($(section + "Title")) $(section + "Title").value = "";
+    if ($(section + "Body"))  $(section + "Body").value  = "";
+
+    await loadEntries(section);
+  }
+
+  // Hook your buttons to these:
+  window.addEntry = (section) => saveEntry(section);
+
+  window.openTab = function(id, btn){
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    const page = document.getElementById(id);
+    if (page) page.classList.add("active");
+
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+
+    // load entries for that tab when opened
+    loadEntries(id);
+  };
+
+  // initial
+  window.addEventListener("load", () => {
+    loadEntries("journal");
   });
-
-  $("btnSignOut").addEventListener("click", async () => {
-    setCloud("signing out…");
-    await api("logout", { method:"POST" }).catch(()=>{});
-    setCloud("signed out");
-    showLogin(true);
-    $("journalList").innerHTML = `<p class="empty">Sign in to load entries.</p>`;
-    $("appreciationsList").innerHTML = `<p class="empty">Sign in to load entries.</p>`;
-    $("checkinList").innerHTML = `<p class="empty">Sign in to load entries.</p>`;
-  });
-
-  // ---------- save buttons ----------
-  $("btnSaveJournal").addEventListener("click", async () => {
-    if(!(await ensureSignedIn())) return;
-
-    const author = $("journalAuthor").value;
-    const title = $("journalTitle").value.trim();
-    const body = $("journalBody").value.trim();
-    if(!body){ alert("Write something first 💛"); return; }
-
-    setCloud("saving…");
-    const r = await api("entries", {
-      method:"POST",
-      body: JSON.stringify({ section:"journal", author, title, payload:{ body } })
-    });
-    if(!r.ok){ alert(r.json?.error || "Save failed"); setCloud("signed in"); return; }
-
-    $("journalTitle").value = ""; saveDraft("journalTitle","");
-    $("journalBody").value = "";  saveDraft("journalBody","");
-    setCloud("signed in");
-    await render("journal");
-  });
-
-  $("btnSaveApp").addEventListener("click", async () => {
-    if(!(await ensureSignedIn())) return;
-
-    const author = $("appAuthor").value;
-    const text = $("appBody").value.trim();
-    if(!text){ alert("Write something first 💛"); return; }
-
-    setCloud("saving…");
-    const r = await api("entries", {
-      method:"POST",
-      body: JSON.stringify({ section:"appreciations", author, title:"", payload:{ body: text } })
-    });
-    if(!r.ok){ alert(r.json?.error || "Save failed"); setCloud("signed in"); return; }
-
-    $("appBody").value = ""; saveDraft("appBody","");
-    setCloud("signed in");
-    await render("appreciations");
-  });
-
-  $("btnSaveCheckin").addEventListener("click", async () => {
-    if(!(await ensureSignedIn())) return;
-
-    const feel = $("checkinFeel").value.trim();
-    const need = $("checkinNeed").value.trim();
-    if(!feel && !need){ alert("Write something first 💛"); return; }
-
-    setCloud("saving…");
-    const body = `Feeling:\n${feel}\n\nNeed:\n${need}`.trim();
-    const r = await api("entries", {
-      method:"POST",
-      body: JSON.stringify({ section:"checkin", author:"", title:"", payload:{ body } })
-    });
-    if(!r.ok){ alert(r.json?.error || "Save failed"); setCloud("signed in"); return; }
-
-    $("checkinFeel").value = ""; saveDraft("checkinFeel","");
-    $("checkinNeed").value = ""; saveDraft("checkinNeed","");
-    setCloud("signed in");
-    await render("checkin");
-  });
-
-  // drafts
-  bindDraft("journalTitle","journalTitle");
-  bindDraft("journalBody","journalBody");
-  $("journalAuthor").addEventListener("change", () => saveDraft("journalAuthor", $("journalAuthor").value));
-
-  bindDraft("appBody","appBody");
-  $("appAuthor").addEventListener("change", () => saveDraft("appAuthor", $("appAuthor").value));
-
-  bindDraft("checkinFeel","checkinFeel");
-  bindDraft("checkinNeed","checkinNeed");
-
-  hydrateDrafts();
-
-  // boot
-  (async () => {
-    setCloud("checking…");
-    const ok = await ensureSignedIn();
-    if(ok){
-      setCloud("signed in");
-      showLogin(false);
-      await renderAll();
-    } else {
-      setCloud("signed out");
-    }
-  })();
 </script>
-</body>
-</html>
