@@ -1,0 +1,8 @@
+our-space-/
+  netlify/
+    functions/
+      entries.js
+      hello.js
+      login.js
+      logout.js
+      package.json   ← NEW LOCATION
